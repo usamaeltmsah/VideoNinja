@@ -326,6 +326,38 @@ class VideoEditorViewController: UIViewController {
         }
     }
     
+    // Helper function to save video to Photos
+    private func saveToPhotos(url: URL) {
+        // Check if the video can be saved to the Photos library
+        PHPhotoLibrary.shared().performChanges({
+            let creationRequest = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: url)
+            if creationRequest != nil {
+                print("Video saved successfully.")
+            }
+        }) { success, error in
+            DispatchQueue.main.async {
+                if success {
+                    self.presentSavedSuccessfullyAlert()
+                } else {
+                    print("Error saving video: \(error?.localizedDescription ?? "unknown error")")
+                    self.presentErrorAlert(message: error?.localizedDescription ?? "Could not save video.")
+                }
+            }
+        }
+    }
+    
+    private func presentSavedSuccessfullyAlert() {
+        let alertController = UIAlertController(title: "Success", message: "Your video has been saved successfully!", preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    private func presentErrorAlert(message: String) {
+        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alertController, animated: true, completion: nil)
+    }
+    
     @IBAction func playPauseMainVideo(_ sender: Any) {
     }
     @IBAction func togglePreviewPlayback(_ sender: Any) {
