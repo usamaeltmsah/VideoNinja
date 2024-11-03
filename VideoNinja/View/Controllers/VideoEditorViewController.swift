@@ -358,6 +358,37 @@ class VideoEditorViewController: UIViewController {
         present(alertController, animated: true, completion: nil)
     }
     
+    @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        guard let handleContainer = gesture.view else { return }
+        
+        let translation = gesture.translation(in: trimView)
+        
+        if handleContainer == startHandleContainer {
+            // Update start handle position
+            let newX = max(0, min(startHandleContainer.frame.origin.x + translation.x, endHandleContainer.frame.origin.x - 20))
+            startHandleContainer.frame.origin.x = newX
+            
+            // Update player current time to start time when start handle is moved
+            let startTime = (videoAsset?.duration.seconds ?? 0) * Double(startHandleContainer.frame.origin.x / trimView.bounds.width)
+            player?.pause() // Pause before seeking
+            isMainVideoPlaying = false
+            player?.seek(to: CMTime(seconds: startTime, preferredTimescale: 600)) { [weak self] _ in
+                self?.player?.play() // Resume playing after seeking
+                self?.isMainVideoPlaying = true
+            }
+        } else if handleContainer == endHandleContainer {
+            // Update end handle position
+            let newX = min(trimView.bounds.width - 20, max(endHandleContainer.frame.origin.x + translation.x, startHandleContainer.frame.origin.x + 20))
+            endHandleContainer.frame.origin.x = newX
+        }
+        
+        gesture.setTranslation(.zero, in: trimView)
+        
+        // Update the selected range view
+        let selectedRangeView = selectedRangeViewContainer.subviews.first(where: { $0.backgroundColor == UIColor.systemBrown })
+        selectedRangeView?.frame = CGRect(x: startHandleContainer.frame.origin.x, y: 0, width: endHandleContainer.frame.origin.x - startHandleContainer.frame.origin.x - 20, height: 40)
+    }
+    
     @IBAction func playPauseMainVideo(_ sender: Any) {
     }
     @IBAction func togglePreviewPlayback(_ sender: Any) {
