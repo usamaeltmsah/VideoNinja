@@ -4,6 +4,8 @@
 <dict>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>This app requires access to your photo library to save videos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>App needs access to your photo library to load videos.</string>
 	<key>UIApplicationSceneManifest</key>
