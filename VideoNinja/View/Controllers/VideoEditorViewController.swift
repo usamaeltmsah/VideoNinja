@@ -64,6 +64,23 @@ class VideoEditorViewController: UIViewController {
     }
     
     var videoAsset: AVAsset?
+    private func configProgressView() {
+        // Initialize and set up the progress view
+        progressView = UIProgressView(progressViewStyle: .default)
+        progressView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(progressView)
+        
+        // Add constraints for the progress view
+        NSLayoutConstraint.activate([
+            progressView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            progressView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            progressView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8)
+        ])
+        
+        // Hide the progress view initially
+        progressView.isHidden = true
+    }
+    
     @IBAction func playPauseMainVideo(_ sender: Any) {
     }
     @IBAction func togglePreviewPlayback(_ sender: Any) {
