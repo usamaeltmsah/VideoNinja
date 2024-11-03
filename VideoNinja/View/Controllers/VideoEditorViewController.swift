@@ -81,6 +81,28 @@ class VideoEditorViewController: UIViewController {
         progressView.isHidden = true
     }
     
+    private func requestPhotoLibraryAccess() {
+        PHPhotoLibrary.requestAuthorization { status in
+            switch status {
+            case .authorized:
+                print("Access granted")
+                // You can proceed with saving videos
+            case .denied:
+                print("Access denied")
+                // Handle the case where access is denied
+            case .restricted:
+                print("Access restricted")
+                // Handle the case where access is restricted
+            case .notDetermined:
+                print("Access not determined")
+                // This case shouldn't occur if you've already requested authorization
+                break
+            default:
+                break
+            }
+        }
+    }
+    
     @IBAction func playPauseMainVideo(_ sender: Any) {
     }
     @IBAction func togglePreviewPlayback(_ sender: Any) {
