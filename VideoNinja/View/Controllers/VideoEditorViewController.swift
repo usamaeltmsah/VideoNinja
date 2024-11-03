@@ -444,7 +444,11 @@ class VideoEditorViewController: UIViewController {
         currentFilter?.setValue(0.8, forKey: kCIInputIntensityKey) // Set intensity for sepia
         previewFilteredVideo()
     }
+    
     @IBAction func resetFiltersAction(_ sender: Any) {
+        currentFilter = nil
+        previewFilteredVideo() // Reset preview to original video
     }
+    
     @IBAction func saveAction(_ sender: Any) {
     }
