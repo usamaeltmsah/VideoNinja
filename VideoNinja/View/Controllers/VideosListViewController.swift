@@ -13,7 +13,7 @@ class VideosListViewController: UIViewController {
     @IBOutlet weak var videoCollectionView: UICollectionView!
     @IBOutlet weak var placeholderLabel: UILabel!
     
-    private var viewModel = VideoEditorViewModel()
+    private var viewModel = VideosLoadingViewModel()
     private var cancellables = Set<AnyCancellable>()
     
     override func viewDidLoad() {
@@ -90,5 +90,17 @@ extension VideosListViewController: UICollectionViewDelegate, UICollectionViewDa
         let asset = viewModel.videoAssets[indexPath.item]
         cell.configure(with: asset)
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let selectedAsset = viewModel.videoAssets[indexPath.item]
+        
+        guard let videoEditorViewController = UIStoryboard(name: "VideoEditorScreen", bundle: nil)
+            .instantiateViewController(identifier: "VideoEditorViewController") as? VideoEditorViewController else { return }
+        
+        self.viewModel.loadAVAsset(for: selectedAsset) { avAsset in
+            videoEditorViewController.videoAsset = avAsset
+            self.navigationController?.pushViewController(videoEditorViewController, animated: true)
+        }
     }
 }
