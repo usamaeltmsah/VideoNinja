@@ -414,6 +414,12 @@ class VideoEditorViewController: UIViewController {
     }
     
     @IBAction func playPauseMainVideo(_ sender: Any) {
+        if isMainVideoPlaying {
+            player?.pause()
+        } else {
+            player?.play()
+        }
+        isMainVideoPlaying.toggle()
     }
     @IBAction func togglePreviewPlayback(_ sender: Any) {
     }
