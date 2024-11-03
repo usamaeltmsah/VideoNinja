@@ -78,6 +78,16 @@ class VideoEditorViewController: UIViewController {
         setupPreviewControls()
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        // Pause the video when the view disappears
+        player?.pause()
+        previewPlayer?.pause()
+        isMainVideoPlaying = false
+        isPreviewPlaying = false
+    }
+    
     private func configProgressView() {
         // Initialize and set up the progress view
         progressView = UIProgressView(progressViewStyle: .default)
