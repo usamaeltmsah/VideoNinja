@@ -1,17 +1,19 @@
 //
-//  VideoEditorViewModel.swift
+//  VideosLoadingViewModel.swift
 //  VideoNinja
 //
 //  Created by Usama Fouad on 03/11/2024.
 //
 
 import Foundation
+import AVFoundation
 import Photos
 import Combine
 
-class VideoEditorViewModel: NSObject, ObservableObject, PHPhotoLibraryChangeObserver {
+class VideosLoadingViewModel: NSObject, ObservableObject, PHPhotoLibraryChangeObserver {
     
     @Published var videoAssets: [PHAsset] = []
+    @Published var selectedAVAsset: AVAsset? // AVAsset for the selected video
     @Published var hasPermission: Bool = false
     @Published var permissionMessage: String? = "Please grant access to view your videos."
     
@@ -27,14 +29,14 @@ class VideoEditorViewModel: NSObject, ObservableObject, PHPhotoLibraryChangeObse
         PHPhotoLibrary.shared().unregisterChangeObserver(self)
     }
     
-    // Request photo library permission and handle different authorization statuses
-    func requestPhotoLibraryPermission() {
-        PHPhotoLibrary.requestAuthorization(for: .readWrite) { [weak self] status in
+    // Request permission to access the photo library
+    private func requestPhotoLibraryPermission() {
+        PHPhotoLibrary.requestAuthorization { [weak self] status in
             DispatchQueue.main.async {
                 switch status {
                 case .authorized, .limited:
                     self?.hasPermission = true
-                    self?.fetchSelectedVideos()
+                    self?.fetchVideoAssets()
                 case .denied, .restricted:
                     self?.hasPermission = false
                     self?.permissionMessage = "Access Denied. Go to Settings to allow access."
@@ -47,10 +49,9 @@ class VideoEditorViewModel: NSObject, ObservableObject, PHPhotoLibraryChangeObse
         }
     }
     
-    // Fetch selected videos based on permission status
-    func fetchSelectedVideos() {
+    // Fetch video assets from the library
+    private func fetchVideoAssets() {
         videoAssets.removeAll()
-        
         let fetchOptions = PHFetchOptions()
         fetchOptions.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.video.rawValue)
         
@@ -60,10 +61,22 @@ class VideoEditorViewModel: NSObject, ObservableObject, PHPhotoLibraryChangeObse
         }
     }
     
+    // Convert a selected PHAsset to AVAsset for editing
+    func loadAVAsset(for asset: PHAsset, completion: @escaping (AVAsset?) -> Void) {
+        let options = PHVideoRequestOptions()
+        options.version = .current
+        PHImageManager.default().requestAVAsset(forVideo: asset, options: options) { [weak self] avAsset, _, _ in
+            DispatchQueue.main.async {
+                self?.selectedAVAsset = avAsset
+                completion(avAsset)
+            }
+        }
+    }
+    
     // MARK: - PHPhotoLibraryChangeObserver
     func photoLibraryDidChange(_ changeInstance: PHChange) {
         DispatchQueue.main.async {
-            self.fetchSelectedVideos()
+            self.fetchVideoAssets()
         }
     }
 }
