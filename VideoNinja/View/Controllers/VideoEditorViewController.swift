@@ -152,6 +152,73 @@ class VideoEditorViewController: UIViewController {
             previewContainer.layer.addSublayer(previewPlayerLayer)
         }
     }
+    
+    private func previewFilteredVideo() {
+        guard let playerItem = player?.currentItem else { return }
+        let asset = playerItem.asset
+        
+        // Create a composition for the video
+        let composition = AVMutableComposition()
+        
+        // Calculate start and end times based on handle positions
+        let totalWidth = trimView.bounds.width
+        startTime = (videoAsset?.duration.seconds ?? 0) * Double(startHandleContainer.frame.origin.x / totalWidth)
+        endTime = (videoAsset?.duration.seconds ?? 0) * Double(endHandleContainer.frame.origin.x / totalWidth)
+        
+        // Ensure the end time is greater than the start time
+        guard endTime ?? 0 > startTime else { return }
+        
+        // Create time range for the selected portion
+        let timeRange = CMTimeRange(start: CMTime(seconds: startTime, preferredTimescale: 600),
+                                    duration: CMTime(seconds: (endTime ?? 0) - startTime, preferredTimescale: 600))
+        
+        // Add video track
+        guard let videoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid) else { return }
+        
+        // Use the existing video track
+        let assetVideoTrack = asset.tracks(withMediaType: .video).first
+        do {
+            // Insert the selected range of video into the composition
+            try videoTrack.insertTimeRange(timeRange, of: assetVideoTrack!, at: .zero)
+        } catch {
+            print("Error inserting video track: \(error)")
+            return
+        }
+        
+        // Add audio track if exists
+        if let audioTrack = asset.tracks(withMediaType: .audio).first {
+            guard let compositionAudioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) else { return }
+            do {
+                // Insert the audio track corresponding to the selected video range
+                try compositionAudioTrack.insertTimeRange(timeRange, of: audioTrack, at: .zero)
+            } catch {
+                print("Error inserting audio track: \(error)")
+                return
+            }
+        }
+        
+        // Apply the filter to the video
+        let videoComposition = AVMutableVideoComposition(asset: composition) { request in
+            var outputImage = request.sourceImage.clampedToExtent()
+            if let filter = self.currentFilter {
+                filter.setValue(outputImage, forKey: kCIInputImageKey)
+                outputImage = filter.outputImage!.cropped(to: request.sourceImage.extent)
+            }
+            request.finish(with: outputImage, context: nil)
+        }
+        
+        // Create a new player item with the video composition
+        let previewPlayerItem = AVPlayerItem(asset: composition)
+        previewPlayerItem.videoComposition = videoComposition
+        
+        // Assign the preview player item
+        previewPlayer = AVPlayer(playerItem: previewPlayerItem)
+        previewPlayer?.volume = 0.0 // Make the preview is muted
+        previewPlayerLayer?.player = previewPlayer
+        
+        self.previewPlayer?.play() // Play the preview automatically
+        self.isPreviewPlaying = true
+    }
     @IBAction func playPauseMainVideo(_ sender: Any) {
     }
     @IBAction func togglePreviewPlayback(_ sender: Any) {
