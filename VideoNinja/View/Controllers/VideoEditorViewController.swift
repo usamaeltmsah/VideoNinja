@@ -124,6 +124,23 @@ class VideoEditorViewController: UIViewController {
         isMainVideoPlaying = true
     }
     
+    private func setupTrimControls() {
+        // Add a darker overlay for selected range
+        let selectedRangeView = UIView()
+        selectedRangeView.frame = CGRect(x: 0, y: 0, width: 0, height: 40) // Start with zero width
+        selectedRangeView.backgroundColor = UIColor.systemBrown // Darker color for the selected range
+        selectedRangeViewContainer.addSubview(selectedRangeView)
+        
+        // Add gestures to handles
+        let startPanGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        let endPanGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        
+        startHandleContainer.isUserInteractionEnabled = true
+        endHandleContainer.isUserInteractionEnabled = true
+        startHandleContainer.addGestureRecognizer(startPanGesture)
+        endHandleContainer.addGestureRecognizer(endPanGesture)
+    }
+    
     @IBAction func playPauseMainVideo(_ sender: Any) {
     }
     @IBAction func togglePreviewPlayback(_ sender: Any) {
