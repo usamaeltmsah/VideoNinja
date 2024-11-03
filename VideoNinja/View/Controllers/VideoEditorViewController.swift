@@ -451,4 +451,6 @@ class VideoEditorViewController: UIViewController {
     }
     
     @IBAction func saveAction(_ sender: Any) {
+        saveFilteredAndTrimmedVideo()
     }
+}
