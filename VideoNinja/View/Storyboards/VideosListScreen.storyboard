@@ -38,17 +38,28 @@
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Please grant access to view your videos." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GR6-DB-hGl">
+                                <rect key="frame" x="20" y="79" width="353" height="719"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="Nu5-iL-WrO" secondAttribute="trailing" constant="4" id="0Ux-Kh-poa"/>
                             <constraint firstItem="Nu5-iL-WrO" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="4" id="4ge-qT-y7L"/>
+                            <constraint firstItem="GR6-DB-hGl" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="20" id="B0j-pM-jB4"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="Nu5-iL-WrO" secondAttribute="bottom" constant="4" id="JLB-3R-0qi"/>
                             <constraint firstItem="Nu5-iL-WrO" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="4" id="Kh3-qm-YEt"/>
+                            <constraint firstItem="GR6-DB-hGl" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="20" id="dRo-ft-K0W"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="GR6-DB-hGl" secondAttribute="trailing" constant="20" id="nkl-9U-wzA"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="GR6-DB-hGl" secondAttribute="bottom" constant="20" id="nuD-2n-Eed"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="placeholderLabel" destination="GR6-DB-hGl" id="8ie-Bd-6Rt"/>
                         <outlet property="videoCollectionView" destination="Nu5-iL-WrO" id="ohj-8e-kPK"/>
                     </connections>
                 </viewController>
