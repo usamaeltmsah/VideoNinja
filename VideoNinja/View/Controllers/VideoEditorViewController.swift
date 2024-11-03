@@ -141,6 +141,17 @@ class VideoEditorViewController: UIViewController {
         endHandleContainer.addGestureRecognizer(endPanGesture)
     }
     
+    private func setupPreviewControls() {
+        // Preview Container
+        previewContainer.backgroundColor = UIColor.black
+        
+        // Preview Player Layer
+        previewPlayerLayer = AVPlayerLayer(player: previewPlayer)
+        previewPlayerLayer?.frame = previewContainer.bounds
+        if let previewPlayerLayer {
+            previewContainer.layer.addSublayer(previewPlayerLayer)
+        }
+    }
     @IBAction func playPauseMainVideo(_ sender: Any) {
     }
     @IBAction func togglePreviewPlayback(_ sender: Any) {
