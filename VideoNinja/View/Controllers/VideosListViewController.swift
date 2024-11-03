@@ -77,4 +77,18 @@ class VideosListViewController: UIViewController {
             .store(in: &cancellables)
     }
 }
+
+
+// MARK: - UICollectionView DataSource & Delegate
+extension VideosListViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return viewModel.videoAssets.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "VideoThumbnailCVCell", for: indexPath) as! VideoThumbnailCVCell
+        let asset = viewModel.videoAssets[indexPath.item]
+        cell.configure(with: asset)
+        return cell
+    }
 }
