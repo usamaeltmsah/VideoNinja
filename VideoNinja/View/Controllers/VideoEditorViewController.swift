@@ -64,6 +64,20 @@ class VideoEditorViewController: UIViewController {
     }
     
     var videoAsset: AVAsset?
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        ciContext = CIContext()
+        
+        requestPhotoLibraryAccess()
+        configProgressView()
+        setupVideoModel()
+        setupVideoPlayer()
+        setupTrimControls()
+        setupPreviewControls()
+    }
+    
     private func configProgressView() {
         // Initialize and set up the progress view
         progressView = UIProgressView(progressViewStyle: .default)
