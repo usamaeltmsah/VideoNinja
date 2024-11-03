@@ -219,6 +219,102 @@ class VideoEditorViewController: UIViewController {
         self.previewPlayer?.play() // Play the preview automatically
         self.isPreviewPlaying = true
     }
+    
+    private func saveFilteredAndTrimmedVideo() {
+        // Check if video asset exists
+        guard let videoAsset = videoModel?.videoAsset else { return }
+        
+        // Create a composition for the video
+        let composition = AVMutableComposition()
+        
+        // Calculate start and end times based on handle positions
+        let totalWidth = trimView.bounds.width
+        startTime = (videoAsset.duration.seconds) * Double(startHandleContainer.frame.origin.x / totalWidth)
+        endTime = (videoAsset.duration.seconds) * Double(endHandleContainer.frame.origin.x / totalWidth)
+        
+        // Ensure the end time is greater than the start time
+        guard endTime ?? 0 > startTime else { return }
+        
+        // Create time range for the selected portion
+        let timeRange = CMTimeRange(start: CMTime(seconds: startTime, preferredTimescale: 600), duration: CMTime(seconds: (endTime ?? 0) - startTime, preferredTimescale: 600))
+        
+        // Add video track
+        guard let videoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid) else { return }
+        
+        // Use the existing video track
+        let assetVideoTrack = videoAsset.tracks(withMediaType: .video).first
+        do {
+            // Insert the selected range of video into the composition
+            try videoTrack.insertTimeRange(timeRange, of: assetVideoTrack!, at: .zero)
+        } catch {
+            print("Error inserting video track: \(error)")
+            return
+        }
+        
+        // Add audio track if exists
+        if let audioTrack = videoAsset.tracks(withMediaType: .audio).first {
+            guard let compositionAudioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) else { return }
+            do {
+                // Insert the audio track corresponding to the selected video range
+                try compositionAudioTrack.insertTimeRange(timeRange, of: audioTrack, at: .zero)
+            } catch {
+                print("Error inserting audio track: \(error)")
+                return
+            }
+        }
+        
+        // Apply the filter to the video
+        let videoComposition = AVMutableVideoComposition(asset: composition) { request in
+            var outputImage = request.sourceImage.clampedToExtent()
+            if let filter = self.currentFilter {
+                filter.setValue(outputImage, forKey: kCIInputImageKey)
+                outputImage = filter.outputImage!.cropped(to: request.sourceImage.extent)
+            }
+            request.finish(with: outputImage, context: nil)
+        }
+        
+        // Create an export session
+        let exportSession = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent("videoNinja_trimmed_filtered_video.mov")
+        
+        // Remove any existing file at the output URL
+        try? FileManager.default.removeItem(at: outputURL)
+        
+        exportSession?.outputURL = outputURL
+        exportSession?.outputFileType = .mov
+        exportSession?.videoComposition = videoComposition
+        
+        // Show the progress view and start the export
+        progressView.isHidden = false
+        progressView.progress = 0.0
+        
+        // Present saving alert
+        let alertController = UIAlertController(title: "Saving Video", message: "Your video is being saved. Please wait...", preferredStyle: .alert)
+        present(alertController, animated: true, completion: nil)
+        
+        // Observe export progress
+        exportSession?.exportAsynchronously {
+            DispatchQueue.main.async {
+                // Dismiss the saving alert once export is completed or failed
+                alertController.dismiss(animated: true, completion: nil)
+                
+                switch exportSession?.status {
+                case .completed:
+                    print("Export successful")
+                    self.saveToPhotos(url: outputURL)
+                    self.progressView.isHidden = true
+                case .failed:
+                    print("Export failed: \(exportSession?.error?.localizedDescription ?? "unknown error")")
+                    self.progressView.isHidden = true
+                case .cancelled:
+                    print("Export cancelled")
+                    self.progressView.isHidden = true
+                default:
+                    break
+                }
+            }
+        }
+        
     @IBAction func playPauseMainVideo(_ sender: Any) {
     }
     @IBAction func togglePreviewPlayback(_ sender: Any) {
