@@ -315,6 +315,17 @@ class VideoEditorViewController: UIViewController {
             }
         }
         
+        // Update progress periodically
+        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
+            if let progress = exportSession?.progress {
+                self.progressView.progress = Float(progress)
+                if exportSession?.status == .completed || exportSession?.status == .failed || exportSession?.status == .cancelled {
+                    timer.invalidate() // Stop updating progress
+                }
+            }
+        }
+    }
+    
     @IBAction func playPauseMainVideo(_ sender: Any) {
     }
     @IBAction func togglePreviewPlayback(_ sender: Any) {
