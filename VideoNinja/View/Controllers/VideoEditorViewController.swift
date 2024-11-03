@@ -28,6 +28,42 @@ class VideoEditorViewController: UIViewController {
     @IBOutlet weak var previewContainer: UIView!
     @IBOutlet weak var videoPlayPauseButton: UIButton!
     @IBOutlet weak var videoPreviewPlayPauseButton: UIButton!
+    private var progressView: UIProgressView!
+    
+    private var videoModel: VideoEditingViewModel?
+    private var player: AVPlayer?
+    private var playerLayer: AVPlayerLayer?
+    
+    private var previewPlayer: AVPlayer?
+    private var previewPlayerLayer: AVPlayerLayer?
+    
+    var startTime: Double = .zero // Define trimming start time
+    var endTime: Double? // Define trimming end time, optional if you want till end
+    
+    private var ciContext: CIContext?
+    private var currentFilter: CIFilter?
+    
+    private var isMainVideoPlaying = false {
+        didSet {
+            if isMainVideoPlaying {
+                videoPlayPauseButton.setImage(UIImage(systemName: "pause.fill"), for: .normal)
+            } else {
+                videoPlayPauseButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
+            }
+        }
+    }
+    
+    private var isPreviewPlaying = false {
+        didSet {
+            if isPreviewPlaying {
+                videoPreviewPlayPauseButton.setImage(UIImage(systemName: "pause.fill"), for: .normal)
+            } else {
+                videoPreviewPlayPauseButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
+            }
+        }
+    }
+    
+    var videoAsset: AVAsset?
     @IBAction func playPauseMainVideo(_ sender: Any) {
     }
     @IBAction func togglePreviewPlayback(_ sender: Any) {
