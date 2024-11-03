@@ -20,7 +20,8 @@ class ViewController: UIViewController {
     // MARK:- Handle action of Get started button
     @objc private func videoTapped(_ sender: UITapGestureRecognizer) {
         // Present all videos from photo library
-        print("Clicked!")
+        guard let videosListViewController = UIStoryboard(name: "VideosListScreen", bundle: nil).instantiateViewController(identifier: "VideosListViewController") as? VideosListViewController else { return }
+        self.navigationController?.pushViewController(videosListViewController, animated: true)
     }
 }
 
