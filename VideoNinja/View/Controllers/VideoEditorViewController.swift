@@ -432,7 +432,13 @@ class VideoEditorViewController: UIViewController {
     }
     
     @IBAction func applyGrayscaleFilterAction(_ sender: Any) {
+        currentFilter = CIFilter(name: "CIColorControls")
+        currentFilter?.setValue(0.0, forKey: kCIInputBrightnessKey)
+        currentFilter?.setValue(0.0, forKey: kCIInputSaturationKey)
+        currentFilter?.setValue(1.1, forKey: kCIInputContrastKey)
+        previewFilteredVideo()
     }
+    
     @IBAction func applySepiaFilterAction(_ sender: Any) {
     }
     @IBAction func resetFiltersAction(_ sender: Any) {
