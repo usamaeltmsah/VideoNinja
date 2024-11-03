@@ -103,6 +103,27 @@ class VideoEditorViewController: UIViewController {
         }
     }
     
+    
+    private func setupVideoModel() {
+        guard let videoAsset else { return }
+        videoModel = VideoEditingViewModel(videoAsset: videoAsset)
+    }
+    
+    private func setupVideoPlayer() {
+        guard let videoAsset = videoModel?.videoAsset else { return }
+        let playerItem = AVPlayerItem(asset: videoAsset)
+        player = AVPlayer(playerItem: playerItem)
+        
+        playerLayer = AVPlayerLayer(player: player)
+        playerLayer?.frame = mainVideoContainerView.frame
+        if let playerLayer {
+            mainVideoContainerView.layer.addSublayer(playerLayer)
+        }
+        
+        player?.play()
+        isMainVideoPlaying = true
+    }
+    
     @IBAction func playPauseMainVideo(_ sender: Any) {
     }
     @IBAction func togglePreviewPlayback(_ sender: Any) {
