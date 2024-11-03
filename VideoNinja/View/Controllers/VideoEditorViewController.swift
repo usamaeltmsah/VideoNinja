@@ -440,6 +440,9 @@ class VideoEditorViewController: UIViewController {
     }
     
     @IBAction func applySepiaFilterAction(_ sender: Any) {
+        currentFilter = CIFilter(name: "CISepiaTone")
+        currentFilter?.setValue(0.8, forKey: kCIInputIntensityKey) // Set intensity for sepia
+        previewFilteredVideo()
     }
     @IBAction func resetFiltersAction(_ sender: Any) {
     }
