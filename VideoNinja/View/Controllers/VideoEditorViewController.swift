@@ -421,8 +421,16 @@ class VideoEditorViewController: UIViewController {
         }
         isMainVideoPlaying.toggle()
     }
+    
     @IBAction func togglePreviewPlayback(_ sender: Any) {
+        if isPreviewPlaying {
+            previewPlayer?.pause()
+        } else {
+            previewPlayer?.play()
+        }
+        isPreviewPlaying.toggle()
     }
+    
     @IBAction func applyGrayscaleFilterAction(_ sender: Any) {
     }
     @IBAction func applySepiaFilterAction(_ sender: Any) {
