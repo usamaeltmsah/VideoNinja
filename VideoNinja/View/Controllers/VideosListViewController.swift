@@ -15,6 +15,7 @@ class VideosListViewController: UIViewController {
     
     private var viewModel = VideosLoadingViewModel()
     private var cancellables = Set<AnyCancellable>()
+    var operationType: OperationType?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -95,12 +96,23 @@ extension VideosListViewController: UICollectionViewDelegate, UICollectionViewDa
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedAsset = viewModel.videoAssets[indexPath.item]
         
-        guard let videoEditorViewController = UIStoryboard(name: "VideoEditorScreen", bundle: nil)
-            .instantiateViewController(identifier: "VideoEditorViewController") as? VideoEditorViewController else { return }
+        guard let operationType else { return }
         
-        self.viewModel.loadAVAsset(for: selectedAsset) { avAsset in
-            videoEditorViewController.videoAsset = avAsset
-            self.navigationController?.pushViewController(videoEditorViewController, animated: true)
+        switch operationType {
+        case .trimming:
+            guard let videoEditorViewController = UIStoryboard(name: "VideoEditorScreen", bundle: nil)
+                .instantiateViewController(identifier: "VideoEditorViewController") as? VideoEditorViewController
+            else { return }
+            
+            self.viewModel.loadAVAsset(for: selectedAsset) { avAsset in
+                videoEditorViewController.videoAsset = avAsset
+                self.navigationController?.pushViewController(videoEditorViewController, animated: true)
+            }
+        case .montage:
+            self.viewModel.loadAVAsset(for: selectedAsset) { avAsset in
+                let vc = TimelineViewController(videoAsset: avAsset!)
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
         }
     }
 }
